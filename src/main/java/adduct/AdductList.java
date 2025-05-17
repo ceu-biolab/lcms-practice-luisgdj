@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public abstract class AdductList {
+public class AdductList {
 
     public static final Map<String, Double> MAPMZPOSITIVEADDUCTS;
     public static final Map<String, Double> MAPMZNEGATIVEADDUCTS;
@@ -12,12 +12,12 @@ public abstract class AdductList {
     static {
         Map<String, Double> mapMZPositiveAdductsTMP = new LinkedHashMap<>();
         mapMZPositiveAdductsTMP.put("[M+H]+", -1.007276d);
-        mapMZPositiveAdductsTMP.put("[M+2H]2+", -1.007276d); // 2M/2 = M , 2(1.007276)/2 ≈ 1.007276
+        mapMZPositiveAdductsTMP.put("[M+2H]2+", -2.014552d);
         mapMZPositiveAdductsTMP.put("[M+Na]+", -22.989218d);
         mapMZPositiveAdductsTMP.put("[M+K]+", -38.963158d);
         mapMZPositiveAdductsTMP.put("[M+NH4]+", -18.033823d);
         mapMZPositiveAdductsTMP.put("[M+H-H2O]+", 17.0032d);
-        mapMZPositiveAdductsTMP.put("[M+H+NH4]2+", -9.52055d);
+        mapMZPositiveAdductsTMP.put("[M+H+NH4]2+", -19.04165);
         mapMZPositiveAdductsTMP.put("[2M+H]+", -1.007276d);
         mapMZPositiveAdductsTMP.put("[2M+Na]+", -22.989218d);
         MAPMZPOSITIVEADDUCTS = Collections.unmodifiableMap(mapMZPositiveAdductsTMP);
