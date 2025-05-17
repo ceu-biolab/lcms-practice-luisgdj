@@ -78,7 +78,7 @@ public abstract class Adduct {
         }
         // Case 4: Multimer with multiple charges (mz = (M * numberOfMultimer +- adductMass) / charge).
         else {
-            mz = ((monoisotopicMass * multimer) - adductMass) / charge;
+            mz = ((monoisotopicMass * multimer)/charge) - adductMass;
         }
         return mz;
     }
@@ -103,8 +103,7 @@ public abstract class Adduct {
      */
     public static double calculateDeltaPPM(Double experimentalMass, int ppm) {
         double deltaPPM;
-        // deltaPPM = Math.round(Math.abs((experimentalMass * ppm) / 1000000));
-        deltaPPM = Math.abs((experimentalMass * ppm) / 1000000);
+        deltaPPM = Math.round(Math.abs((experimentalMass * ppm) / 1000000));
         return deltaPPM;
     }
 
