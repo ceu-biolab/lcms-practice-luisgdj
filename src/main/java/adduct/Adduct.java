@@ -21,27 +21,29 @@ public abstract class Adduct {
     public static Double getMonoisotopicMassFromMZ(Double mz, Map.Entry<String, Double> adduct) {
 
         Double monoisotopicMass = null;
-        Double adductMass = adduct.getValue();
         // !! TODO METHOD
         // !! TODO Create the necessary regex to obtain the multimer (number before the M) and the charge (number before the + or - (if no number, the charge is 1).
         int multimer = extractMultimer(adduct.getKey());
         int charge = extractCharge(adduct.getKey());
 
-        // Case 1: Single charge, no multimer (m/z = M +- adductMass).
+        // If charge is higher than one the adduct shift has to be divided by the charge
+        Double adductShift = adduct.getValue()/charge;
+
+        // Case 1: Single charge, no multimer (m/z = M +- adductShift).
         if (charge == 1 && multimer == 1) {
-            monoisotopicMass = mz + adductMass;
+            monoisotopicMass = mz + adductShift;
         }
-        // Case 2: Multiple charges, no multimer (mz = M/charge +- adductMass).
+        // Case 2: Multiple charges, no multimer (mz = M/charge +- adductShift).
         else if (charge > 1 && multimer == 1) {
-            monoisotopicMass = (mz + adductMass) * charge;
+            monoisotopicMass = (mz + adductShift) * charge;
         }
-        // Case 3: Multimer, single charge (mz = M * numberOfMultimer +- adductMass).
+        // Case 3: Multimer, single charge (mz = M * numberOfMultimer +- adductShift).
         else if (charge == 1 && multimer > 1) {
-            monoisotopicMass = (mz + adductMass) / multimer;
+            monoisotopicMass = (mz + adductShift) / multimer;
         }
-        // Case 4: Multimer with multiple charges (mz = (M * numberOfMultimer +- adductMass) / charge).
+        // Case 4: Multimer with multiple charges (mz = (M * numberOfMultimer +- adductShift) / charge).
         else {
-            monoisotopicMass = ((mz + adductMass) * charge) / multimer;
+            monoisotopicMass = ((mz + adductShift) * charge) / multimer;
         }
         return monoisotopicMass;
     }
@@ -58,36 +60,39 @@ public abstract class Adduct {
     public static Double getMZFromMonoisotopicMass(Double monoisotopicMass, Map.Entry<String, Double> adduct) {
 
         Double mz = null;
-        Double adductMass = adduct.getValue();
         // !! TODO METHOD
         // !! TODO Create the necessary regex to obtain the multimer (number before the M) and the charge (number before the + or - (if no number, the charge is 1).
         int multimer = extractMultimer(adduct.getKey());
         int charge = extractCharge(adduct.getKey());
 
-        // Case 1: Single charge, no multimer (m/z = M +- adductMass).
+        // If charge is higher than one the adduct shift has to be divided by the charge
+        Double adductShift = adduct.getValue()/charge;
+
+        // Case 1: Single charge, no multimer (m/z = M +- adductShift).
         if (charge == 1 && multimer == 1) {
-            mz = monoisotopicMass - adductMass;
+            mz = monoisotopicMass - adductShift;
         }
-        // Case 2: Multiple charges, no multimer (mz = M/charge +- adductMass).
+        // Case 2: Multiple charges, no multimer (mz = M/charge +- adductShift).
         else if (charge > 1 && multimer == 1) {
-            mz = (monoisotopicMass / charge) - adductMass;
+            mz = (monoisotopicMass / charge) - adductShift;
         }
-        // Case 3: Multimer, single charge (mz = M * numberOfMultimer +- adductMass).
+        // Case 3: Multimer, single charge (mz = M * numberOfMultimer +- adductShift).
         else if (charge == 1 && multimer > 1) {
-            mz = (monoisotopicMass * multimer) - adductMass;
+            mz = (monoisotopicMass * multimer) - adductShift;
         }
-        // Case 4: Multimer with multiple charges (mz = (M * numberOfMultimer +- adductMass) / charge).
+        // Case 4: Multimer with multiple charges (mz = (M * numberOfMultimer +- adductShift) / charge).
         else {
-            mz = ((monoisotopicMass * multimer)/charge) - adductMass;
+            mz = ((monoisotopicMass * multimer)/charge) - adductShift;
         }
         return mz;
     }
 
     /**
-     * Returns the ppm difference between measured mass and theoretical mass
+     * Calculates the parts-per-million (PPM) difference between an experimental mass and a theoretical mass.
      *
-     * @param experimentalMass    Mass measured by MS
-     * @param theoreticalMass Theoretical mass of the compound
+     * @param experimentalMass the measured or observed mass value
+     * @param theoreticalMass the expected or reference mass value
+     * @return the absolute PPM difference between the two mass values, rounded to the nearest integer
      */
     public static int calculatePPMIncrement(Double experimentalMass, Double theoreticalMass) {
         int ppmIncrement;
@@ -96,10 +101,11 @@ public abstract class Adduct {
     }
 
     /**
-     * Returns the ppm difference between measured mass and theoretical mass
+     * Calculates the absolute delta in mass corresponding to a given parts-per-million (PPM) tolerance.
      *
-     * @param experimentalMass    Mass measured by MS
-     * @param ppm ppm of tolerance
+     * @param experimentalMass the experimental mass (in Daltons or any relevant mass unit)
+     * @param ppm the parts-per-million tolerance
+     * @return the absolute mass difference (delta) corresponding to the given PPM, rounded to the nearest integer
      */
     public static double calculateDeltaPPM(Double experimentalMass, int ppm) {
         double deltaPPM;
@@ -108,12 +114,10 @@ public abstract class Adduct {
     }
 
     /**
-     * Extracts the multimer number from the adduct string using a regex pattern.
-     * The multimer refers to the number of molecules in the adduct. If no number is present,
-     * the method defaults to 1.
+     * Extracts the multimer count from an adduct string in the format commonly used in mass spectrometry.
      *
-     * @param adduct The adduct string in standard format (e.g. "[2M+H]+").
-     * @return The multimer count as an integer (default 1 if not found).
+     * @param adduct the adduct string
+     * @return the integer multiplier before M
      */
     private static int extractMultimer(String adduct) {
 
@@ -127,12 +131,12 @@ public abstract class Adduct {
     }
 
     /**
-     * Extracts the charge value from the adduct string using a regex pattern.
+     * Extracts the ionic charge from an adduct string typically used in mass spectrometry.
      * The charge is found as a number directly before the '+' or '-' at the end of the adduct.
      * If no number is present, the method assumes a default charge of 1.
      *
-     * @param adduct The adduct string in standard format (e.g. "[M+2H]2+").
-     * @return The charge value (default 1 if not explicitly stated).
+     * @param adduct The adduct string in standard format
+     * @return The charge value
      */
     private static int extractCharge(String adduct) {
 
