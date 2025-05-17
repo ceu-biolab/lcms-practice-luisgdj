@@ -31,5 +31,4 @@ public class AdductList {
         mapMZNegativeAdductsTMP.put("[M-2H]2−", 1.007276d);
         MAPMZNEGATIVEADDUCTS = Collections.unmodifiableMap(mapMZNegativeAdductsTMP);
     }
-
 }
